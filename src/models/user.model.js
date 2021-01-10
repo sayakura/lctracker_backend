@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
@@ -10,35 +9,66 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
       unique: true,
-      trim: true,
-      lowercase: true,
-      validate(value) {
-        if (!validator.isEmail(value)) {
-          throw new Error('Invalid email');
-        }
-      },
     },
-    password: {
+    avator: {
       type: String,
-      required: true,
       trim: true,
-      minlength: 8,
-      validate(value) {
-        if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
-          throw new Error('Password must contain at least one letter and one number');
-        }
-      },
-      private: true, // used by the toJSON plugin
+      default: '',
+    },
+    chain: {
+      type: Number,
+      default: 0,
+    },
+    chain_date: {
+      type: Date,
+    },
+    total_ac: {
+      type: Number,
+      default: 0,
+    },
+    is_plugin_user: {
+      type: Boolean,
+      default: false,
+    },
+    recent_submission: {
+      type: [String],
+      default: [],
+    },
+    last_submission: {
+      type: Date,
+    },
+    register_date: {
+      type: Date,
+    },
+    problems_completed_count: {
+      type: Number,
+      default: 0,
+    },
+    problems_completed: {
+      type: [Number],
+      default: [],
+    },
+    saved_problem: {
+      type: [Number],
+      default: [],
+    },
+    posts: {
+      type: [String],
+      default: [],
+    },
+    bookmarks: {
+      type: [String],
+      default: [],
     },
     role: {
       type: String,
       enum: roles,
       default: 'user',
+    },
+    last_bookmark_modified: {
+      type: Date,
+      default: Date.now,
     },
   },
   {
@@ -69,6 +99,10 @@ userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
 userSchema.methods.isPasswordMatch = async function (password) {
   const user = this;
   return bcrypt.compare(password, user.password);
+};
+
+userSchema.statics.addBookmark = function (userID, bookmarkID) {
+  return this.findByIdAndUpdate(userID, { $addToSet: { bookmarks: bookmarkID }, last_bookmark_modified: Date.now() }).exec();
 };
 
 userSchema.pre('save', async function (next) {

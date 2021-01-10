@@ -5,11 +5,41 @@ components:
       properties:
         id:
           type: string
-        email:
+        avator:
           type: string
-          format: email
+          format: uri
         name:
           type: string
+        chain:
+          type: integer
+        chain_date:
+          type: string
+          format: date
+        total_ac:
+          type: integer
+        is_plugin_user:
+          type: boolean
+        recent_submission:
+          type: array
+          items:
+            type: string
+        last_submmision:
+          type: string
+          format: date
+        problems_completed_count:
+          type: integer
+        problems_completed:
+          type: array
+          items:
+            type: integer
+        saved_problem:
+          type: array
+          items:
+            type: integer
+        posts:
+          type: array
+          items:
+            type: uri
         role:
           type: string
           enum: [user, admin]
